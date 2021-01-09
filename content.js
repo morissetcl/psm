@@ -55,10 +55,14 @@ $(".carac-container").each(function(i, obj) {
 })
 
 chrome.extension.onMessage.addListener(function(message) {
-  console.log(message.parameter)
-  console.log('popopo')
-  if(message.parameter) {
-    var selector = $(".desc:first")
-    $(`<span style="font-size:12px;float:right;position:relative;bottom:5px;padding:5px;border-radius:5px;background-color:#ff4646;color:white;">${message.parameter}</span>`).insertAfter(selector)
+  const surface = message.data[0][0]
+  const mls = message.data[0][1]
+  const ok = $(`.psm-${mls}`)
+  if(ok.length) return;
+  
+  if(message) {
+    const selector = $(`[data-mlsnumber='${mls}'] > div > span:first`)
+    // var selector = $(".desc:first")
+    $(`<span class="psm-${mls}" style="font-size:12px;float:right;position:relative;bottom:5px;padding:5px;border-radius:5px;background-color:#ff4646;color:white;">${surface}</span>`).insertAfter(selector)
   }
 });

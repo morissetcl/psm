@@ -10,7 +10,7 @@
       "content.js"
     ]
   },
-  "permissions": ["tabs", "*://*/*"],
+  "permissions": ["tabs", "*://*/*", "storage"],
   "browser_action": {},
   "content_scripts": [
     {

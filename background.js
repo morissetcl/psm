@@ -6,55 +6,50 @@ chrome.browserAction.onClicked.addListener(function(activeTab) {
       return fullUrl
     });`
   }, accomodationUrls);
-
-
-  // $(".property-thumbnail-feature").each(function(i, obj) {
-  //   $(".a-more-detail").each(function(i, obj) {
-  //     const url = $(".a-more-detail:first").attr('href');
-  //
-  //   };
-  //   const ok = $(".a-more-detail:first").attr('href');
-  //   console.log(ok)
-  //   $(this).find(".a-more-detail").text();
-  //   chrome.tabs.create({ url: `${window.location.hostname}${url}` });
-  // })
 });
 
 function accomodationUrls(urls) {
-  console.log('accomodationUrls')
-  console.log(urls)
-  console.log(urls[0])
-  console.log('accomodationUrls')
-
-  const url = urls[0][0]
-  chrome.tabs.create({ url: url, active: false }, function(tab){ getSurfaceArea(tab.id)});
-
+  // const url = urls[0][0]
+  // chrome.tabs.create({ url: url, active: false }, function(tab){ getSurfaceArea(tab.id)});
 
   // Object.values(urls[0]).forEach(function(url) {
   //   if (typeof url === 'string') {
-  //     chrome.tabs.create({ url: url, active: false }, function(tab){ getSurfaceArea(tab.id)});
+  //     (function () {
+  //       setTimeout(function () {
+  //         chrome.tabs.create({ url: url, active: false }, function(tab){ getSurfaceArea(tab.id)});
+  //       }, 1000);
+  //     })();
   //   }
   // });
+
+  var urls = Object.values(urls[0]);
+  for (var i = 0; i < urls.length; i++) {
+      (function (i) {
+          setTimeout(function () {
+            console.log(urls[i])
+            chrome.tabs.create({ url: urls[i], active: false }, function(tab){ getSurfaceArea(tab.id)});
+          }, 3000 * i);
+      })(i);
+  };
 }
 
 function getSurfaceArea(tabId) {
   chrome.tabs.onUpdated.addListener(function (tabId , info) {
-    if (info.status === 'complete') {
-      chrome.tabs.executeScript(tabId, { code: `$(".psm:first").text()` }, okok);
-    }
+    chrome.tabs.executeScript(tabId, { code: `[$(".psm:first").text(), ${tabId}]` }, test);
   });
 }
 
-function okok(area) {
+function test(data) {
+  if(data[0] != null) {
+    if(data[0][0] != "") {
+      chrome.tabs.executeScript(data[0][1], { code: `[$(".psm:first").text(), $(".sharethis").attr("data-mlsnumber")]` }, okok);
+      chrome.tabs.remove(data[0][1], function() { });
+    }
+  }
+}
+
+function okok(data) {
   chrome.tabs.query({ active: true }, function (tabs) {
-    console.log(tabs)
-    chrome.tabs.sendMessage(tabs[0].id, { parameter: area });
+    chrome.tabs.sendMessage(tabs[0].id, { data: data });
   });
-
-
-  // Object.values(urls[0]).forEach(function(url) {
-  //   if (typeof url === 'string') {
-  //     chrome.tabs.create({ url: url, active: false }, function(tab){ console.log(tab.id)});
-  //   }
-  // });
 }
