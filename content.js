@@ -1,7 +1,3 @@
-chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-
-});
-
 const url = window.location.href
 const metric = url.includes("/fr/") ? "pi²" : "ft²"
 const website = url.includes("duproprio") ? "duproprio" : "centris"
@@ -34,11 +30,31 @@ if(website === "duproprio") {
   }
 };
 
-
 // centris
 var price = $("#BuyPrice").text().replace(/[^0-9]/g, '')
 var sanitized_price = parseInt(price)
 const label = url.includes("/fr/") ? "Prix par pied carré" : "Price per square foot"
+
+// var test = $(".a-more-detail");
+// test = jQuery.map( test, function( n, i ) {
+//   console.log(n)
+//   return element.attr("data-mlsnumber");
+// });
+// $('.a-more-detail')
+
+// Searh in localstorage if MLS exist
+$('#divMainResult').bind("DOMSubtreeModified", function() {
+  $('.a-more-detail').each(function( element ) {
+    var mls = $(this).attr("data-mlsnumber")
+    var surface = localStorage.getItem(mls);
+    if(surface) {
+      const ok = $(`.psm-${mls}`)
+      if(ok.length) return;
+      const selector = $(`[data-mlsnumber='${mls}'] > div > span:first`)
+      $(`<span class="psm-${mls}" style="font-size:12px;float:right;position:relative;bottom:5px;padding:5px;border-radius:5px;background-color:#ff4646;color:white;">${surface}</span>`).insertAfter(selector)
+    }
+  });
+});
 
 $(".carac-container").each(function(i, obj) {
   const words = ["Superficie nette", "Superficie brute", "Net area", "Brut area"]
@@ -47,6 +63,10 @@ $(".carac-container").each(function(i, obj) {
     var surface = $(this).find(".carac-value").text().replace(/\D/g,'')
     var sanitizedSurface = parseInt(surface)
     var price_per_surface = (sanitized_price / sanitizedSurface).toFixed(2);
+
+    var mls = $(".sharethis").attr("data-mlsnumber")
+    var psm = `$ ${price_per_surface}/${metric}`
+    localStorage.setItem(mls, psm);
 
     if(!isNaN(price_per_surface)) {
       $(`<div class="col-lg-3 col-sm-6 carac-container"><div class="carac-title">${label}</div><div class="carac-value"><span class="psm" style="padding:5px;border-radius:5px;background-color:#ff4646;color:white;">$ ${price_per_surface}/${metric}</span></div></div>`).insertAfter(this)
@@ -59,10 +79,11 @@ chrome.extension.onMessage.addListener(function(message) {
   const mls = message.data[0][1]
   const ok = $(`.psm-${mls}`)
   if(ok.length) return;
-  
+
   if(message) {
     const selector = $(`[data-mlsnumber='${mls}'] > div > span:first`)
     // var selector = $(".desc:first")
+    localStorage.setItem(mls, surface);
     $(`<span class="psm-${mls}" style="font-size:12px;float:right;position:relative;bottom:5px;padding:5px;border-radius:5px;background-color:#ff4646;color:white;">${surface}</span>`).insertAfter(selector)
   }
 });
