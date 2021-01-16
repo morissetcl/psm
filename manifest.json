@@ -2,9 +2,15 @@
   "manifest_version": 2,
   "name": "PSM-CAN",
   "version": "0.2",
-  "permissions": [
-    "activeTab"
-  ],
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "jquery-3.5.0.js",
+      "background.js",
+      "content.js"
+    ]
+  },
+  "permissions": ["tabs", "*://*/*"],
   "browser_action": {},
   "content_scripts": [
     {
